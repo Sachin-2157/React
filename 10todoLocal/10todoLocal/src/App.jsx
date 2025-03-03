@@ -1,54 +1,63 @@
-import { useState, useEffect } from 'react'
-
-
-import './App.css'
-import { TodoProvider } from './contexts/Todocontext'
+import { useState, useEffect } from 'react';
+import './App.css';
+import { TodoProvider } from './contexts/Todocontext';
+import { TodoForm, TodoItem } from './components';
 
 function App() {
-  const [todos, setTodos] = useState([])
+  const [todos, setTodos] = useState([]);
 
-  const addTodo = (todos) => {
-    setTodos(prev => [{id: Date.now, ...todos}, ...prev])
-  }
-  const updateTodos = (id, todos) => {
-    setTodos((prev) => prev.map((prevTodo) => (prevTodo.id === id ? todos : prevTodo)))
-  }
+  const addTodo = (todo) => {
+    setTodos((prev) => [{ id: Date.now(), ...todo }, ...prev]);
+  };
+
+  const updateTodos = (id, updatedTodo) => {
+    setTodos((prev) =>
+      prev.map((prevTodo) => (prevTodo.id === id ? updatedTodo : prevTodo))
+    );
+  };
+
   const deleteTodos = (id) => {
-    setTodos((prev) => prev.filter((todos) => todos.id !== id))
-  }
+    setTodos((prev) => prev.filter((todo) => todo.id !== id));
+  };
+
   const toggleComplete = (id) => {
-    setTodos((prev) => prev.map((prevTodo) =>prevTodo === id ? {...prevTodo, completed: !prevTodo.completed}: prevTodo))
-  }
+    setTodos((prev) =>
+      prev.map((prevTodo) =>
+        prevTodo.id === id ? { ...prevTodo, completed: !prevTodo.completed } : prevTodo
+      )
+    );
+  };
 
-useEffect(() => {
- const todos = JSON.parse(localStorage.getItem("todos"))   
- if(todos && todos.length > 0){
-  setTodos(todos)
- }
+  useEffect(() => {
+    const savedTodos = JSON.parse(localStorage.getItem('todos'));
+    if (savedTodos && savedTodos.length > 0) {
+      setTodos(savedTodos);
+    }
+  }, []);
 
-},[])
-
-useEffect(() => {
-  localStorage.setItemItem("todos", JSON.stringify(todos))  
- 
-},[todos])
-  
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }, [todos]);
 
   return (
-    <TodoProvider value={{todos, addTodo, updateTodos,deleteTodos, toggleComplete}}>
-     <div className="bg-[#172842] min-h-screen py-8">
-                <div className="w-full max-w-2xl mx-auto shadow-md rounded-lg px-4 py-3 text-white">
-                    <h1 className="text-2xl font-bold text-center mb-8 mt-2">Make Your Day!</h1>
-                    <div className="mb-4">
-                        {/* Todo form goes here */} 
-                    </div>
-                    <div className="flex flex-wrap gap-y-3">
-                        {/*Loop and Add TodoItem here */}
-                    </div>
-                </div>
-            </div>
+    <TodoProvider value={{ todos, addTodo, updateTodos, deleteTodos, toggleComplete }}>
+      <div className="bg-gradient-to-r from-[#153677] to-[#4e085f] min-h-screen py-8">
+        <div className="w-full max-w-2xl mx-auto shadow-md rounded-lg px-4 py-3 text-white">
+          <h1 className="text-2xl font-bold text-center mb-8 mt-2">Make Your Day!</h1>
+          <div className="mb-4">
+            <TodoForm />
+          </div>
+          <div className="flex flex-wrap gap-y-3">
+            {todos.map((todo) => (
+              <div key={todo.id} className="w-full">
+                <TodoItem todo={todo} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </TodoProvider>
-  )
+  );
 }
 
-export default App
+export default App;
